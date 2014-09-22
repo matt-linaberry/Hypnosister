@@ -9,6 +9,10 @@
 #import "BNRAppDelegate.h"
 #import "BNRHypnosisView.h"
 
+@interface BNRAppDelegate () <UIScrollViewDelegate>
+@property (strong, nonatomic) BNRHypnosisView *outView;
+@end
+
 @implementation BNRAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -22,25 +26,29 @@
     CGRect bigRect = screenRect;
     
     bigRect.size.width *= 2.0;  // double me!
+    bigRect.size.height *= 2.0;
     
-    UIScrollView *scrollView = [[UIScrollView alloc] initWithFrame:screenRect];
-    scrollView.pagingEnabled = YES;
-    [self.window addSubview:scrollView];
+    UIScrollView *_scrollView = [[UIScrollView alloc] initWithFrame:screenRect];
+
+    [self.window addSubview:_scrollView];
     
-    BNRHypnosisView *hypnosisView = [[BNRHypnosisView alloc ] initWithFrame:screenRect];
-    [scrollView addSubview:hypnosisView];
+    self.outView = [[BNRHypnosisView alloc ] initWithFrame:bigRect];
+    [_scrollView addSubview:self.outView];
     
     screenRect.origin.x += screenRect.size.width;
-    
-    BNRHypnosisView *anotherView = [[BNRHypnosisView alloc] initWithFrame:screenRect];
-    
-    [scrollView addSubview:anotherView];
-    
-    scrollView.contentSize = bigRect.size;
+        _scrollView.pagingEnabled = NO;
+        _scrollView.delegate = self;
+        _scrollView.minimumZoomScale = 0.5;
+        _scrollView.maximumZoomScale = 3.0;
+    _scrollView.contentSize = bigRect.size;
     
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
     return YES;
+}
+- (UIView *) viewForZoomingInScrollView:(UIScrollView *)aView
+{
+    return self.outView;
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
